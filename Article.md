@@ -27,7 +27,7 @@ I'm going to use linux OS with `Docker` and `Postgresql` database.
 
 I assume you're able to use linux command line and you have some knowledge about `Docker`, `Ruby on Rails` and shell scripting.
 
-I have created the Rails application and setup it, you can clone it from [here](#LINK_HERE).
+I have created the Rails application and setup it, you can clone it from [here](https://github.com/fishbullet/Accept-Bitcoin-Webstore/tree/master/robot_store).
 That's a simple Rails application. The Robot Store.
 
 ---
@@ -47,8 +47,8 @@ That's a simple Rails application. The Robot Store.
 
 ### Use cases:
 
-- [x] [Reg user and request address](#)
-- [x] [Payment processing](#)
+- [x] [Reg user and request address](#reg-a-user-and-request-address)
+- [x] [Payment processing](#payment-processing)
 
 ---
 
@@ -171,7 +171,7 @@ Database tables:
 2. Purshase - is a join table between users and robot items.
 3. Robot - purchase item.
 
-<p align="center"><img src="assets/webstore_database_1.png" width="560"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore.png" width="560"></p>
 
 There is a three abstraction which represent user balance:
 
@@ -196,11 +196,12 @@ def confirmed
 end
 ```
 
-
 ## RPC provider
 
 In order to communicate with wallet there is a module `PaymentProcessor` it is a simple http service
 which talk with electrum RPC server.
+
+<p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_diagram.png" width="560"></p>
 
 ```ruby
 require 'httparty'
@@ -262,10 +263,6 @@ class PaymentProcessor
 end
 ```
 
-Here is a diagram:
-
-<p align="center"><img src="assets/store.png" width="560"></p>
-
 ## Reg a user and request address
 
 At this step we have:
@@ -275,6 +272,8 @@ At this step we have:
 * Users, Purchase, Robot, Payment model.
 
 Let's buy some robot now! 
+
+## Payment processing
 
 Setup and run Rails application. Here are steps.
 
@@ -289,16 +288,16 @@ Setup and run Rails application. Here are steps.
 
 Open the [robot store](http://localhost:3000/) and reg a user.
 
-<p align="center"><img src="assets/webstore_step_1.png" width="560"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_step_1.jpg" width="560"></p>
 
 Here’s what you should be seeing after success registration:
 
-<p align="center"><img src="assets/webstore_step_2.png" width="560"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_step_2.jpg" width="560"></p>
 
 At this point we cant buy any robots, need to deposit some coins.
 After successfull address request you'll see:
 
-<p align="center"><img src="assets/webstore_step_3.png" width="560"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_step_3.jpg" width="560"></p>
 
 Now we have an address and we can deposit some coins.
 I'll use a [facuet](https://testnet.manu.backend.hamburg/faucet).
@@ -307,13 +306,13 @@ Now we should wait at least one confirmation.
 In order to update our payments we'll run rake task `bundle exec rake pull_payments`.
 Here is what you'll see if you have any transaction on this address.
 
-<p align="center"><img src="assets/webstore_step_4.png" width="560"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_step_4.jpg" width="560"></p>
 
 There is unconfirmed balance `B1.30000000`. That's good, now wait confirmations and run `bundle exec rake pull_payments` periodically.
 
 After sometime your balance must change from unconfirmed to confirmed and you'll able to buy some robots.
 
-<p align="center"><img src="assets/webstore_step_5.png" width="560"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_step_5.jpg" width="560"></p>
 
 ## Closing
 
