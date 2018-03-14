@@ -326,5 +326,10 @@ Buy me a beer:
 * 19SYMA2hqRZHRSL4di35Uf7jV87KBKc9bf
 * 0xD7cc10f0d70Fd8f9fB83D4eF9250Fc9201981e3a
 
-Happy hacking!
+
+## Disclaimer
+> :exclamation: you use the howto at your own risk.. 
+
+<sub>P.S. forgive me my bad English, it’s not my native language.</sub>
+<sub>Happy hacking!</sub>
 
