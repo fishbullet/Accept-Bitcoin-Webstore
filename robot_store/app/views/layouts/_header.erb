@@ -1,0 +1,32 @@
+<ul>
+  <li><%= link_to 'Main', root_path %></li>
+  <% if signed_in? %>
+    <li>Your balance:<br/>
+      <ul>
+        <li>
+          Confirmed: <b><%= number_to_currency(current_user.balance, unit: 'B', precision: 8) %></b>
+        </li>
+        <li>
+          Unconfirmed: <b><%= number_to_currency(current_user.unconfirmed, unit: 'B', precision: 8) %></b>
+        </li>
+      </ul>
+    </li>
+    <% if current_user.deposit_address %>
+      <ul>
+        <li style='font-style: italic;'>Your deposit address: <b><%= current_user.deposit_address %></b></li>
+      </ul>
+    <% else %>
+      <ul>
+        <li style='font-style: italic;'>In order to make a deposit, request an address click <%= link_to 'here', accounts_path, method: :post %>.</li>
+      </ul>
+    <% end %>
+    <% if current_user.robots.any? %>
+      <li><%= link_to('Your robots', purchases_path) %></li>
+    <% end %>
+    <li><%= link_to 'Logout', destroy_user_session_path, method: :delete %></li>
+  <% else %>
+    <li><%= link_to 'Login', new_user_session_path %></li>
+    <li><%= link_to 'Register', new_user_registration_path %></li>
+  <% end %>
+</ul>
+

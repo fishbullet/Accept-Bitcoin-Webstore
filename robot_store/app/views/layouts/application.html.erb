@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Robots Store</title>
+    <%= csrf_meta_tags %>
+
+    <%= stylesheet_link_tag    'application' %>
+    <%= javascript_include_tag 'application' %>
+  </head>
+
+  <body>
+      <%= render 'layouts/header' %>
+      <div style="text-align: center">
+        <div style="text-align: center;color: green">
+          <% if flash[:success] %>
+            <%= flash[:success] %>
+          <% end %>
+        </div>
+        <div style="text-align: center;color: red">
+          <% if flash[:error] %>
+            <%= flash[:error] %>
+          <% end %>
+        </div>
+        <%= yield %>
+      </div>
+  </body>
+</html>

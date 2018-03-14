@@ -1,0 +1,17 @@
+<h1>Robots Store</h1>
+<div class='grid'>
+  <% @merch.each_slice(3) do |robots| %>
+    <div>
+      <% robots.each do |r| %>
+        <span style='position: absolute;text-align: left'>
+          <small><%= r.title %>
+            <b><%= signed_in? ? link_to('Buy', purchases_path(robot_id: r.id), method: :post) : link_to('Buy', new_user_session_path) %></b>
+          </small> <br/>
+        <b><small>Price: <%= number_to_currency(r.price, unit: 'B', precision: 8) %></small></b><br/>
+        </span>
+        <%= image_tag r.avatar, style: 'background: #737f7f;margin-top: 40px;border: 1px black dotted' %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+

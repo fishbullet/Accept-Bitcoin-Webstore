@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# exit if errors happened
+set -e 
+
+VERSION=$ELECTRUM_VERSION
+
+# Color output
+RED=`tput setaf 1`
+GREEN=`tput setaf 2`
+RESET=`tput sgr0`
+echo "${GREEN}Download electrum-$VERSION ...${RESET}"
+
+# Download electrum from main file server
+# https://download.electrum.org/
+wget -q "https://download.electrum.org/$VERSION/Electrum-$VERSION.tar.gz"
+# Extract to current directory
+tar xf Electrum-$VERSION.tar.gz
+# Create sym.link to electrum executable
+ln -s "/Electrum-$VERSION/electrum" /bin/electrum
+# Remove downloaded archive
+rm -rf Electrum-$VERSION.tar.gz
+
+echo "Setup configuration ..."
+
+echo "Setup RPC PORT => $RPCPORT ..."
+electrum setconfig rpcport $RPCPORT --testnet
+# If you are not using Docker you should
+# set $RPCHOST to localhost or 
+# RPC server will be unreachable
+echo "Setup RPC HOST => $RPCHOST ..."
+electrum setconfig rpchost $RPCHOST --testnet
+
+echo "Setup RPC USER => $RPCUSER ..."
+electrum setconfig rpcuser $RPCUSER --testnet
+echo "Setup RPC PASSWORD => $RPCPASSWORD ..."
+electrum setconfig rpcpassword $RPCPASSWORD --testnet
+
+echo -e "${RED}Setup wallet password >>>${RESET}"
+electrum create --testnet
+
+echo -e "${GREEN}Load wallet >>>${RESET}"
+electrum daemon start --testnet
+electrum daemon load_wallet --testnet
+echo -e "${GREEN}Start daemon >>>${RESET}"
+echo -e "${GREEN}Press Ctrl+C to stop >>>${RESET}"
+# Run infinity loop (needs for docker container)
+trap : TERM INT
+sleep infinity & wait
+
