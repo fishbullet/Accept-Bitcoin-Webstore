@@ -15,12 +15,16 @@ class PaymentProcessor
     }
   end
 
+  # Create a new receiving address,
+  # beyond the gap limit of the wallet
   def get_new_address
     request do
       build_params("createnewaddress")
     end
   end
 
+  # Returns the UTXO list of any address
+  # https://bitcoin.org/en/glossary/unspent-transaction-output
   def get_address_unspent(address)
     request do
       build_params("getaddressunspent", address)

@@ -19,6 +19,12 @@ We'll use the [electrum wallet](http://docs.electrum.org/en/latest/faq.html#) is
 > S.P.V. or Simplified Payment Verification - A method for verifying if particular transactions are included
 > in a block without downloading the entire block.
 
+In this guide we have used bitcoin `testnet` but you can try to use it with `mainnet`.
+
+> testnet - is the test network that runs in parallel with mainnet, except that the coins costs nothing.
+
+> mainnet - is the real Bitcoin network. You can of course experiment with this network, but it costs real money—not only to buy bitcoins in the first place—but also transaction fees, even when sending bitcoins to yourself.
+
 ## Requirements
 
 I'm going to use linux OS with `Docker` and `Postgresql` database.
@@ -36,7 +42,7 @@ That's a simple Rails application. The Robot Store.
 
 ### Wallet steps:
 
-- [x] [Prepare and build wallet image](#prepare-and-build-wallet-image)
+- [x] [Build wallet image](#build-wallet-image)
 - [x] [Setup electrum wallet](#setup-electrum-wallet)
 - [x] [Test RPC server](#test-rpc-server)
 
@@ -50,9 +56,15 @@ That's a simple Rails application. The Robot Store.
 - [x] [Reg user and request address](#reg-a-user-and-request-address)
 - [x] [Payment processing](#payment-processing)
 
+### End
+
+- [x] [Closing](#closing)
+- [x] [Disclaimer](#disclaimer)
+- [x] [Donation](#donation)
+
 ---
 
-## Prepare and build wallet image
+## Build wallet image
 
 I'll use the `Docker` image with Ubuntu OS, here is `Dockerfile`:
 
@@ -73,7 +85,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install electrum depends.
 RUN apt-get update && \
- apt-get install --yes wget software-properties-common python-qt4 python3-setuptools python3-pyqt5 python3-pip
+ apt-get install --yes wget \
+ software-properties-common \
+ python-qt4 python3-setuptools python3-pyqt5 python3-pip
 
 # Copy setup file
 COPY launch_electrum .
@@ -110,7 +124,7 @@ Step 7/12 : LABEL version="1.0"
 
 ## Setup electrum wallet
 
-Run image, you must see shell prompt, run `launch_electrum` to setup wallet(**you must enter wallet password and save the seed phrase!**):
+Run them builded image, you must see shell prompt, run `launch_electrum` to setup wallet(**if you're running in the mainnet you must enter wallet password and save the seed phrase, otherwise hit return if you do not wish to encrypt your wallet**):
 
 ```bash
 sudo docker run -it --rm -p 8443:8443 electrum
@@ -145,7 +159,7 @@ understand the purpose of the script commands.
 
 ## Test RPC server
 
-At this point we have setup and run `electrum` wallet in the daemon mode, in order to check
+At this point we have setup and run `electrum` wallet in the daemon mode, to check
 if RPC server running successfully, ping it with the next `curl` command:
 
 ```bash
@@ -168,7 +182,7 @@ If the output other, you're doing something wrong, rollback and check all steps 
 Database tables:
 
 1. Payments - is a bitcoin transaction with included block and value in satoshi.
-2. Purshase - is a join table between users and robot items.
+2. Purshase - is a join table between users and the robot merch items.
 3. Robot - purchase item.
 
 <p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore.png" width="560"></p>
@@ -185,6 +199,9 @@ The user balance calculated in this way:
 # user.rb
 has_many :payments
 
+has_many :purchases
+has_many :robots, through: :purchases
+
 def balance
   # / 100_000_000.0 - because values in the satoshi 0.00000001 BTC is 1 satoshi
   # but we store coins as integer not as decimal
@@ -198,7 +215,7 @@ end
 
 ## RPC provider
 
-In order to communicate with wallet there is a module `PaymentProcessor` it is a simple http service
+In order to communicate with wallet there is a module [`PaymentProcessor`](https://github.com/fishbullet/Accept-Bitcoin-Webstore/blob/master/robot_store/app/models/payment_processor.rb) it is a simple http service
 which talk with electrum RPC server.
 
 <p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_diagram.png" width="560"></p>
@@ -221,12 +238,16 @@ class PaymentProcessor
     }
   end
 
+  # Create a new receiving address,
+  # beyond the gap limit of the wallet
   def get_new_address
     request do
       build_params("createnewaddress")
     end
   end
 
+  # Returns the UTXO list of any address
+  # https://bitcoin.org/en/glossary/unspent-transaction-output
   def get_address_unspent(address)
     request do
       build_params("getaddressunspent", address)
@@ -277,7 +298,7 @@ Let's buy some robot now!
 
 Setup and run Rails application. Here are steps.
 
-<sub> You can clone an example [here]() </sub>
+<sub> You can clone an example [here](https://github.com/fishbullet/Accept-Bitcoin-Webstore/tree/master/robot_store)</sub>
 
 0. `cd robot_store` 
 1. `bundle install` - install Rails depends.
@@ -290,7 +311,7 @@ Open the [robot store](http://localhost:3000/) and reg a user.
 
 <p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_step_1.jpg" width="560"></p>
 
-Here’s what you should be seeing after success registration:
+Here’s what you should be seeing after successfull registration:
 
 <p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_step_2.jpg" width="560"></p>
 
@@ -300,32 +321,34 @@ After successfull address request you'll see:
 <p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_step_3.jpg" width="560"></p>
 
 Now we have an address and we can deposit some coins.
-I'll use a [facuet](https://testnet.manu.backend.hamburg/faucet).
-Copy address and reqeust some coins.
-Now we should wait at least one confirmation.
+I'll use this [faucet](https://testnet.manu.backend.hamburg/faucet).
+Copy the address and request some coins.
+
+After successfull request trough faucet we should wait at least one confirmation.
 In order to update our payments we'll run rake task `bundle exec rake pull_payments`.
 Here is what you'll see if you have any transaction on this address.
 
 <p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_step_4.jpg" width="560"></p>
 
-There is unconfirmed balance `B1.30000000`. That's good, now wait confirmations and run `bundle exec rake pull_payments` periodically.
+There is an unconfirmed balance `B1.30000000`.
+Run rake task `bundle exec rake pull_payments` periodically.
 
-After sometime your balance must change from unconfirmed to confirmed and you'll able to buy some robots.
+After wait a little our balance must change from unconfirmed to confirmed and you'll able to buy some robots.
 
 <p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_step_5.jpg" width="560"></p>
 
 ## Closing
 
-We have create step by step a Rails webstore application with robot merchants and payments in bitcoins.
-In this guide we have used bitcoin `testnet` but you can try to use it with `mainnet`.
-
+We have created a webstore with robot merch items and payments in bitcoins.
+ 
 ## Donation
 
-Buy me a beer:
+Are you like this tutorial? Buy me a beer and I'll write more tutorials like this one:
 
-* 19SYMA2hqRZHRSL4di35Uf7jV87KBKc9bf
-* 0xD7cc10f0d70Fd8f9fB83D4eF9250Fc9201981e3a
+* BTC - 19SYMA2hqRZHRSL4di35Uf7jV87KBKc9bf
+* ETH - 0xD7cc10f0d70Fd8f9fB83D4eF9250Fc9201981e3a
 
+Thank you!
 
 ## Disclaimer
 > :exclamation: you use the howto at your own risk.. 
