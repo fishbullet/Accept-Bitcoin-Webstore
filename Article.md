@@ -160,7 +160,7 @@ understand the purpose of the script commands.
 ## Test RPC server
 
 At this point we have setup and run `electrum` wallet in the daemon mode, to check
-if RPC server running successfully, ping it with the next `curl` command:
+if the RPC server is running successfully, ping it with the next `curl` command:
 
 ```bash
  curl --data-binary '{"id":"curltext","method":"getbalance","params":[]}' http://admin1:admin1@127.0.0.1:8443
@@ -175,25 +175,25 @@ Here’s what you should be seeing after running `curl` command:
   "error": null
 }
 ```
-If the output other, you're doing something wrong, rollback and check all steps again.
+If your output is other, you're doing something wrong, rollback and check all steps again.
 
 ## Database and application desing
 
 Database tables:
 
 1. Payments - is a bitcoin transaction with included block and value in satoshi.
-2. Purshase - is a join table between users and the robot merch items.
-3. Robot - purchase item.
+2. Purshase - is a join table between users and the merch items.
+3. Robot - is a purchase item.
 
 <p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore.png" width="560"></p>
 
-There is a three abstraction which represent user balance:
+There are three kind of abstraction which represent user balance:
 
-1. Confirmed - is a sum of all **confirmed** incoming transactions(payment) minus sum of all purchases. 
-2. Unconfirmed - is a sum of all **unconfirmed** transactions(payment)
-3. Payments - sum of all purchases
+1. Confirmed - is the sum of all **confirmed** incoming transactions(payment) minus sum of all purchases. 
+2. Unconfirmed - is the sum of all **unconfirmed** transactions(payment).
+3. Payments - the sum of all purchases.
 
-The user balance calculated in this way:
+The user balance:
 
 ```ruby
 # user.rb
@@ -288,17 +288,17 @@ end
 
 At this step we have:
 
-* RPC wallet runned in daemon mode.
-* Rails application with RPC module.
-* Users, Purchase, Robot, Payment model.
+* RPC wallet are running in the daemon mode.
+* Rails application with the RPC module.
+* Users, Purchase, Robot, Payment models.
 
 Let's buy some robot now! 
 
 ## Payment processing
 
-Setup and run Rails application. Here are steps.
-
 <sub> You can clone an example [here](https://github.com/fishbullet/Accept-Bitcoin-Webstore/tree/master/robot_store)</sub>
+
+The setup steps for Rails application:
 
 0. `cd robot_store` 
 1. `bundle install` - install Rails depends.
@@ -307,7 +307,7 @@ Setup and run Rails application. Here are steps.
 4. `bundle exec rake db:seed` - seed database with some robots.
 5. `bundle exec rails server` - run rails server.
 
-Open the [robot store](http://localhost:3000/) and reg a user.
+Open the [robot store](http://localhost:3000/) and sign up a user.
 
 <p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_step_1.jpg" width="560"></p>
 
@@ -320,13 +320,12 @@ After successfull address request you'll see:
 
 <p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_step_3.jpg" width="560"></p>
 
-Now we have an address and we can deposit some coins.
+Now we have the address and we can send some coins to that address.
 I'll use this [faucet](https://testnet.manu.backend.hamburg/faucet).
-Copy the address and request some coins.
 
-After successfull request trough faucet we should wait at least one confirmation.
+After successfull request trough faucet, we should wait at least one confirmation.
 In order to update our payments we'll run rake task `bundle exec rake pull_payments`.
-Here is what you'll see if you have any transaction on this address.
+Here is what you'll see if you have any incoming transaction.
 
 <p align="center"><img src="https://raw.githubusercontent.com/fishbullet/Accept-Bitcoin-Webstore/master/assets/webstore_step_4.jpg" width="560"></p>
 
@@ -351,8 +350,7 @@ Are you like this tutorial? Buy me a beer and I'll write more tutorials like thi
 Thank you!
 
 ## Disclaimer
-> :exclamation: you use the howto at your own risk.. 
+> :exclamation: you are using this guide at your own risk.. 
 
 <sub>P.S. forgive me my bad English, it’s not my native language.</sub>
 <sub>Happy hacking!</sub>
-
